@@ -95,7 +95,7 @@ for i in range(len(hist)):
     axes[i].set_xticks([])
     axes[i].set_yticks([])
 fig.set_size_inches(20, 20)
-fig.tight_layout()
+#fig.tight_layout()
 
 st.pyplot(fig)
 
