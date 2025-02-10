@@ -1,0 +1,13 @@
+numpy
+scipy
+matplotlib
+random
+torch
+torchvision
+pandas
+PIL
+io
+warnings
+numba
+streamlit
+streamlit_jupyter
