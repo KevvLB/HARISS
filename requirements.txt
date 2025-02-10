@@ -4,7 +4,7 @@ matplotlib
 torch
 torchvision
 pandas
-PIL
+Pillow
 io
 warnings
 numba
