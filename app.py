@@ -28,7 +28,7 @@ from streamlit_jupyter import StreamlitPatcher, tqdm
 st.title("HARISS")
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 4
-file = st.file_uploader("upload excel file", type={"xlxs"})
+file = st.file_uploader("upload excel file", type={"xlsx"})
 if file is not None:
     df = pd.read_excel(file)
 else:
