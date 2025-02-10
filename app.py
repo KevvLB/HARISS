@@ -32,7 +32,7 @@ file = st.file_uploader("upload excel file", type={"xlxs"})
 if file is not None:
     df = pd.read_excel(file)
 else:
-    df=0
+    df=np.zeros((1,1))
 st.write(df)
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 6
