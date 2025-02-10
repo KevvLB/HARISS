@@ -84,6 +84,7 @@ for i in range(df.shape[1]):
     plt.savefig(img_buf, format='jpg')
     hist.append(Image.open(img_buf))
     plt.show()
+    st.pyplot(hist)
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 11
 fig, axes = plt.subplots(nrows=1, ncols=len(hist))
