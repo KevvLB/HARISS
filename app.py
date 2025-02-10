@@ -552,22 +552,6 @@
     "\n",
     "        st.write(f'{df.columns[i]}:  {keys[result[i].item()]}:  [{lower[i]:.3f} - {upper[i]:.3f}];   90% confidence interval: [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]')"
    ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "cbc38daf-1ac5-46b3-b3a6-a509b91a33e4",
-   "metadata": {},
-   "outputs": [],
-   "source": []
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "be34c697-59cf-4cad-be66-b256a5e3e33e",
-   "metadata": {},
-   "outputs": [],
-   "source": []
   }
  ],
  "metadata": {
