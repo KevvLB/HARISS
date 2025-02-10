@@ -88,7 +88,7 @@ for i in range(df.shape[1]):
     
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 11
-fig, axes = plt.subplots(nrows=1, ncols=len(hist))
+fig, axes = plt.subplots(nrows=1, ncols=len(hist), figsize=(10, 10))
 for i in range(len(hist)):
     axes[i].imshow(hist[i])
     axes[i].set_title(f"{df.columns[i]}")
