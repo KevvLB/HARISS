@@ -94,6 +94,7 @@ for i in range(len(hist)):
     axes[i].set_title(f"{df.columns[i]}")
     axes[i].set_xticks([])
     axes[i].set_yticks([])
+    axes[i].autoscale(False)
 fig.set_size_inches(40, 40)
 fig.tight_layout()
 
