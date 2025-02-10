@@ -5,7 +5,6 @@ torch
 torchvision
 pandas
 Pillow
-warnings
 numba
 streamlit
 streamlit_jupyter
