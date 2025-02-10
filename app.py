@@ -82,8 +82,9 @@ for i in range(df.shape[1]):
     plt.axis('off')
     img_buf = io.BytesIO()
     plt.savefig(img_buf, format='jpg')
-    print(plt.show())
     hist.append(Image.open(img_buf))
+    plt.show()
+    plt.close()
     
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 11
