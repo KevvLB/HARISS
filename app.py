@@ -101,7 +101,7 @@ def close_factors(number):
 factor1,factor2=close_factor(len(hist))
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 11
-fig, axes = plt.subplots(nrows=factor2, ncols=factor1, figsize=(40, 40))
+fig, axes = plt.subplots(nrows=factor2, ncols=factor1)
 for i in range(len(hist)):
     axes[i].imshow(hist[i])
     axes[i].set_title(f"{df.columns[i]}")
@@ -110,8 +110,7 @@ for i in range(len(hist)):
 fig.set_size_inches(20, 20)
 fig.tight_layout()
 
-st.image(hist)
-#st.pyplot(fig)
+st.pyplot(fig)
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 12
 class MyDataset(torch.utils.data.Dataset):
