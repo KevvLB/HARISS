@@ -31,8 +31,6 @@ st.title("HARISS")
 file = st.file_uploader("upload excel file", type={"xlsx"})
 if file is not None:
     df = pd.read_excel(file)
-else:
-    df=np.zeros((1,1))
 st.write(df)
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 6
