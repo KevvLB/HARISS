@@ -8,3 +8,4 @@ Pillow
 numba
 streamlit
 streamlit_jupyter
+openpyxl
