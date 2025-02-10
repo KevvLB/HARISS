@@ -98,7 +98,7 @@ fig.set_size_inches(20, 20)
 fig.tight_layout()
 
 st.image(hist)
-st.pyplot(fig)
+#st.pyplot(fig)
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 12
 class MyDataset(torch.utils.data.Dataset):
