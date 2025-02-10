@@ -1,7 +1,6 @@
 numpy
 scipy
 matplotlib
-random
 torch
 torchvision
 pandas
