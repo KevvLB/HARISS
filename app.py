@@ -22,20 +22,21 @@ import warnings
 from numba import jit
 import streamlit as st
 from streamlit_jupyter import StreamlitPatcher, tqdm
+import sys
 
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 3
 st.title("HARISS")
-
-warnings.filterwarnings('ignore') 
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 4
 file = st.file_uploader("upload excel file", type={"xlsx"})
 if file is not None:
     df = pd.read_excel(file)
 else:
-    df = pd.DataFrame(["A", "B"])
-st.write(df)
+    sys.exit(0)
+
+#    df = pd.DataFrame()
+#st.write(df)
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 6
 transform = transforms.Compose([transforms.ToTensor(), transforms.Grayscale(num_output_channels=1), transforms.Normalize((0.5,),(0.5,)), transforms.Resize((24,32))]) #au lieu de 480,640
