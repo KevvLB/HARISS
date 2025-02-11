@@ -3,9 +3,6 @@
 # %% auto 0
 __all__ = []
 
-[client]
-showErrorDetails = false
-
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 1
 import numpy as np
 from scipy.stats import norm, skewnorm, bootstrap, t
@@ -241,3 +238,7 @@ for images in loader:
             upper90_up[i]=np.quantile(btupper, 0.95)
         st.image(hist[i], caption=df.columns[i], width=500)
         st.write(f'{df.columns[i]}:  Data distribution:  {keys[result[i].item()]}:  95% Reference interval:  [{lower[i]:.3f} - {upper[i]:.3f}];   90% confidence interval: [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]')
+
+
+[client]
+showErrorDetails = false
