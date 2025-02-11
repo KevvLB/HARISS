@@ -36,7 +36,7 @@ else:
     sys.exit(0)
 
 #    df = pd.DataFrame()
-#st.write(df)
+st.write(df)
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 6
 transform = transforms.Compose([transforms.ToTensor(), transforms.Grayscale(num_output_channels=1), transforms.Normalize((0.5,),(0.5,)), transforms.Resize((24,32))]) #au lieu de 480,640
