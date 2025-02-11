@@ -86,8 +86,23 @@ for i in range(df.shape[1]):
     plt.show()
     plt.close()
 
+def close_factors(number):
+    ''' 
+    find the closest pair of factors for a given number
+    '''
+    factor1 = 0
+    factor2 = number
+    while factor1 +1 <= factor2:
+        factor1 += 1
+        if number % factor1 == 0:
+            factor2 = number // factor1
+        
+    return factor1, factor2
+
+factor1, factor2=close_factors(len(hist))
+
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 11
-fig, axes = plt.subplots(nrows=len(hist), ncols=1)
+fig, axes = plt.subplots(nrows=factor2, ncols=factor1)
 for i in range(len(hist)):
     axes[i].imshow(hist[i])
     axes[i].set_title(f"{df.columns[i]}")
