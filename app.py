@@ -3,6 +3,9 @@
 # %% auto 0
 __all__ = []
 
+[client]
+showErrorDetails = false
+
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 1
 import numpy as np
 from scipy.stats import norm, skewnorm, bootstrap, t
