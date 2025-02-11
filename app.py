@@ -26,7 +26,7 @@ import sys
 
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 3
-st.title("blue[HARISS]")
+st.title(":blue[HARISS]")
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 4
 file = st.file_uploader("upload excel file", type={"xlsx"})
