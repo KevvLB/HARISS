@@ -97,7 +97,7 @@ for i in range(len(hist)):
 fig.set_size_inches(20, 20)
 fig.tight_layout()
 
-st.pyplot(fig)
+#st.pyplot(fig)
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 12
 class MyDataset(torch.utils.data.Dataset):
@@ -234,5 +234,5 @@ for images in loader:
             lower90_up[i]=np.quantile(btlower, 0.95)
             upper90_low[i]=np.quantile(btupper, 0.05)
             upper90_up[i]=np.quantile(btupper, 0.95)
-        st.image(hist[i])
+        st.image(hist[i], caption={df.columns[i]}, width=10)
         st.write(f'{df.columns[i]}:  Data distribution:  {keys[result[i].item()]}:  95% Reference interval:  [{lower[i]:.3f} - {upper[i]:.3f}];   90% confidence interval: [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]')
