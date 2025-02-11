@@ -34,7 +34,7 @@ file = st.file_uploader("upload excel file", type={"xlsx"})
 if file is not None:
     df = pd.read_excel(file)
 else:
-    df = pd.DataFrame([[A, A], [B, B]])
+    df = pd.DataFrame(["A", "B"])
 st.write(df)
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 6
