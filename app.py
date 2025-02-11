@@ -27,6 +27,7 @@ import sys
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 3
 st.title(" :blue[HARISS] ")
+st.markdown(" :red[Histogram Analyzer for Reference Intervals of Small Samples] ")
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 4
 file = st.file_uploader("upload excel file", type={"xlsx"})
