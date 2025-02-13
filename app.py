@@ -26,6 +26,16 @@ import sys
 
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 3
+tab1 = st.tabs(["Legal notice and disclosure"])
+tab1.subheader("Legal notice:")
+tab1.markdown("In accordance with the provisions of French Law No. 2004-575 of June 21, 2004 on confidence in the digital economy, users of this site are informed of the identity of the various parties involved in its implementation and monitoring.")
+tab1.markdown("Editor:  \n  Kevin Le Boedec  \n  137 avenue du general Leclerc  \n  92340 Bourg La Reine (France)  \n  Email: drleboedec@hotmail.fr")
+tab1.markdown("Host:  \n  Streamlit.io by Snowflake Inc.  \n  106 E Babcock St Bozeman MT 59715 (USA)  \n  Email: david.amoriell@snowflake.com")
+tab1.subheader("Personal data and cookies:")
+tab1.markdown("We do not collect any private information. We use cookies which are intended to signal your visit to our site. These cookies do not identify you personally but, in general, record information relating to the navigation of your computer on the site (pages consulted, dates and times of consultation, etc.). They will in no case be transferred to third parties. A cookie is simply a means of recording site statistics to better understand usage patterns. Your identity cannot be known. We remind you that your browser has features that allow you to oppose the registration of cookies, to be warned before accepting cookies, or to delete them. You can disable or delete cookies by changing the settings of your Internet browser.")
+tab1.subheader("Disclosure:")
+tab1.markdown("HARISS uses a Convolutional Neural Network to predict the shape of a population distribution from a sample distribution histogram. It has been trained to analyze data distribution histograms from samples of sizes ranging from 20 to 40 individuals. The 95% confidence interval provided is built according to the method described in [Coisnon et al](%s). The 90% confidence interval of each estimated limit is calculated based on 200 bootstrap iterations."  %  https://onlinelibrary.wiley.com/doi/abs/10.1111/vcp.13000)
+
 st.title(" :blue[HARISS] ")
 st.markdown(" :blue[Histogram Analyzer for Reference Intervals of Small Samples] ")
 
