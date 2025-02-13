@@ -30,7 +30,7 @@ st.title(" :blue[HARISS] ")
 st.markdown(" :blue[Histogram Analyzer for Reference Intervals of Small Samples] ")
 
 with st.popover("How does it work?", use_container_width=True):
-    st.markdown("Upload your laboratory data in Excel file format.  \n  The Excel file should be formatted as below:")
+    st.markdown("Upload your laboratory data in Excel file format. The Excel file should be formatted as below:")
     st.image("Excel file example.jpg")
     st.markdown("Only the parameters of interest should be in the Excel file (remove ID numbers or other variables not meant to be analyzed).")
     st.markdown("Your raw data appears in a table, followed by the data distribution histogram, the predicted data distribution, and the 95% reference interval with its 90% confidence interval for each laboratory parameter.")
