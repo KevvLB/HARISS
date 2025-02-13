@@ -36,7 +36,7 @@ with tab2:
     st.subheader("Personal data and cookies:")
     st.markdown("We do not collect any private information. We use cookies which are intended to signal your visit to our site. These cookies do not identify you personally but, in general, record information relating to the navigation of your computer on the site (pages consulted, dates and times of consultation, etc.). They will in no case be transferred to third parties. A cookie is simply a means of recording site statistics to better understand usage patterns. Your identity cannot be known. We remind you that your browser has features that allow you to oppose the registration of cookies, to be warned before accepting cookies, or to delete them. You can disable or delete cookies by changing the settings of your Internet browser.")
     st.subheader("Disclosure:")
-    st.markdown("HARISS uses a Convolutional Neural Network to predict the shape of a population distribution from a sample distribution histogram. It has been trained to analyze data distribution histograms from samples of sizes ranging from 20 to 40 individuals. The 95% reference interval (RI) provided is built according to the method described in [Coisnon et al](https://onlinelibrary.wiley.com/doi/abs/10.1111/vcp.13000). The 90% confidence interval of each estimated RI limit is calculated based on 200 bootstrap iterations.")
+    st.markdown("The creator of HARISS is not to be held responsible for any clinical decisions that may come as a result of the model estimation. The reliability of a reference interval does not only depend on the statistical method used, but also on the quality of the data used to construct it.")
 
 with tab1:
     st.title(" :blue[HARISS] ")
@@ -46,8 +46,10 @@ with tab1:
         st.markdown("Upload your laboratory data in Excel file format. The Excel file should be formatted as below:")
         st.image("Excel file example.jpg")
         st.markdown("Only the parameters of interest should be in the Excel file (remove ID numbers or other variables not meant to be analyzed).")
-        st.markdown("Your raw data appears in a table, followed by the data distribution histogram, the predicted data distribution, and the 95% reference interval with its 90% confidence interval for each laboratory parameter.")
-    
+        st.markdown("Your raw data will appear in a table, followed by the data distribution histogram, the predicted data distribution, and the 95% reference interval (RI) with the 90% confidence interval of each RI limit for each laboratory parameter.")
+        st.markdown("To analyze another set of data, just upload another Excel file and the previous results will be overwritten.")
+        st.markdown("HARISS uses a Convolutional Neural Network to predict the shape of a population distribution from a sample distribution histogram. It has been trained to analyze data distribution histograms from samples of sizes ranging from 20 to 40 individuals. The 95% RI provided is built according to the method described in [Coisnon et al](https://onlinelibrary.wiley.com/doi/abs/10.1111/vcp.13000). The 90% confidence interval of each estimated RI limit is calculated based on 200 bootstrap iterations.")
+
     # %% Projet 2_CNN model_HARISS_Shiny.ipynb 4
     file = st.file_uploader("upload excel file", type={"xlsx"})
     if file is not None:
@@ -258,4 +260,4 @@ with tab1:
                 upper90_low[i]=np.quantile(btupper, 0.05)
                 upper90_up[i]=np.quantile(btupper, 0.95)
             st.image(hist[i], caption=df.columns[i], width=500)
-            st.write(f' :blue[**{df.columns[i]}**]  \n  :blue[Data distribution:]  {keys[result[i].item()]}  \n  :blue[95% Reference interval:]  [{lower[i]:.3f} - {upper[i]:.3f}]  \n  :blue[90% confidence interval:] [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]')
+            st.write(f' :blue[**{df.columns[i]}**]  \n  :blue[Data distribution:]  {keys[result[i].item()]}  \n  :blue[95% Reference interval:]  [{lower[i]:.3f} - {upper[i]:.3f}]  \n  :blue[90% Confidence intervals:] [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]')
