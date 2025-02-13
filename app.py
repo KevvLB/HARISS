@@ -26,233 +26,236 @@ import sys
 
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 3
-tab1 = st.tabs(["Legal notice and disclosure"])
-tab1.subheader("Legal notice:")
-tab1.markdown("In accordance with the provisions of French Law No. 2004-575 of June 21, 2004 on confidence in the digital economy, users of this site are informed of the identity of the various parties involved in its implementation and monitoring.")
-tab1.markdown("Editor:  \n  Kevin Le Boedec  \n  137 avenue du general Leclerc  \n  92340 Bourg La Reine (France)  \n  Email: drleboedec@hotmail.fr")
-tab1.markdown("Host:  \n  Streamlit.io by Snowflake Inc.  \n  106 E Babcock St Bozeman MT 59715 (USA)  \n  Email: david.amoriell@snowflake.com")
-tab1.subheader("Personal data and cookies:")
-tab1.markdown("We do not collect any private information. We use cookies which are intended to signal your visit to our site. These cookies do not identify you personally but, in general, record information relating to the navigation of your computer on the site (pages consulted, dates and times of consultation, etc.). They will in no case be transferred to third parties. A cookie is simply a means of recording site statistics to better understand usage patterns. Your identity cannot be known. We remind you that your browser has features that allow you to oppose the registration of cookies, to be warned before accepting cookies, or to delete them. You can disable or delete cookies by changing the settings of your Internet browser.")
-tab1.subheader("Disclosure:")
-tab1.markdown("HARISS uses a Convolutional Neural Network to predict the shape of a population distribution from a sample distribution histogram. It has been trained to analyze data distribution histograms from samples of sizes ranging from 20 to 40 individuals. The 95% confidence interval provided is built according to the method described in [Coisnon et al](%s). The 90% confidence interval of each estimated limit is calculated based on 200 bootstrap iterations."  %  https://onlinelibrary.wiley.com/doi/abs/10.1111/vcp.13000)
+tab1, tab2 = st.tabs(["App","Legal notice and disclosure"])
 
-st.title(" :blue[HARISS] ")
-st.markdown(" :blue[Histogram Analyzer for Reference Intervals of Small Samples] ")
-
-with st.popover("How does it work?", use_container_width=True):
-    st.markdown("Upload your laboratory data in Excel file format. The Excel file should be formatted as below:")
-    st.image("Excel file example.jpg")
-    st.markdown("Only the parameters of interest should be in the Excel file (remove ID numbers or other variables not meant to be analyzed).")
-    st.markdown("Your raw data appears in a table, followed by the data distribution histogram, the predicted data distribution, and the 95% reference interval with its 90% confidence interval for each laboratory parameter.")
-
-# %% Projet 2_CNN model_HARISS_Shiny.ipynb 4
-file = st.file_uploader("upload excel file", type={"xlsx"})
-if file is not None:
-    df = pd.read_excel(file)
-else:
-    sys.exit(0)
-
-#    df = pd.DataFrame()
-st.write(df)
-
-# %% Projet 2_CNN model_HARISS_Shiny.ipynb 6
-transform = transforms.Compose([transforms.ToTensor(), transforms.Grayscale(num_output_channels=1), transforms.Normalize((0.5,),(0.5,)), transforms.Resize((24,32))]) #au lieu de 480,640
-
-# %% Projet 2_CNN model_HARISS_Shiny.ipynb 7
-class LeNet(nn.Module):
-    def __init__(self):
-        super(LeNet, self).__init__()
-        self.conv1 = nn.Conv2d(1,16,5,padding='valid')  #  (# of channels in the input image = 1 car image N&B, # of filters = 16, kernel_size = 5 [car 5x5], pas de padding c'est a dire pas de cadre autour des donnees)
-        self.batchnorm1 = nn.BatchNorm2d(16)
-        self.act1 =torch.nn.ReLU()
-#        self.act1 =torch.nn.LeakyReLU(negative_slope=0.1)
-        self.maxpool1 = nn.MaxPool2d(2)
-        self.conv2 = nn.Conv2d(16,32,5,padding='valid')
-        self.batchnorm2 = nn.BatchNorm2d(32)
-        self.act2 =torch.nn.ReLU()
-#        self.act2 =torch.nn.LeakyReLU(negative_slope=0.1)
-        self.maxpool2 = nn.MaxPool2d(2)
-        self.un = nn.Linear(3*5*32,100)
-        self.act3 =torch.nn.ReLU()
-#        self.act3 =torch.nn.LeakyReLU(negative_slope=0.1)
-        self.deux = nn.Linear(100,3)
-#        self.dropout = nn.Dropout(0.5)
-
-    def forward(self, x):
-        # YOUR CODE
-        h = self.maxpool2(self.batchnorm2(self.act2(self.conv2(self.maxpool1(self.batchnorm1(self.act1(self.conv1(x))))))))
-        h = h.view(-1,3*5*32)  # cf la taille de la sortie de self.fc1
-#        h = self.dropout(h)
-        return self.deux(self.act3(self.un(h)))
-
-    def num_flat_features(self, x):
-        size = x.size()[1:]  # all dimensions except the batch dimension
-        num_features = 1
-        for s in size:
-            num_features *= s
-        return num_features
-
-# %% Projet 2_CNN model_HARISS_Shiny.ipynb 8
-model2 = torch.load('model.pth', weights_only=False)
-
-# %% Projet 2_CNN model_HARISS_Shiny.ipynb 10
-hist=[]
-for i in range(df.shape[1]):
-    fig=plt.hist(df[df.columns[i]], edgecolor = "black", color="white")
-    plt.axis('off')
-    img_buf = io.BytesIO()
-    plt.savefig(img_buf, format='jpg')
-    hist.append(Image.open(img_buf))
-    plt.show()
-    plt.close()
-
-
-# %% Projet 2_CNN model_HARISS_Shiny.ipynb 11
-fig, axes = plt.subplots(nrows=len(hist), ncols=1)
-for i in range(len(hist)):
-    axes[i].imshow(hist[i])
-    axes[i].set_title(f"{df.columns[i]}")
-    axes[i].set_xticks([])
-    axes[i].set_yticks([])
-fig.set_size_inches(20, 20)
-fig.tight_layout()
-
-#st.pyplot(fig)
-
-# %% Projet 2_CNN model_HARISS_Shiny.ipynb 12
-class MyDataset(torch.utils.data.Dataset):
-    def __init__(self, img_list, transform):
-        super(MyDataset, self).__init__()
-        self.img_list = img_list
-        self.transform = transform
-        
-    def __len__(self):
-        return len(self.img_list)
-
-    def __getitem__(self, idx):
-        img = self.img_list[idx]
-        return self.transform(img)
-
-# %% Projet 2_CNN model_HARISS_Shiny.ipynb 13
-dataset=MyDataset(hist, transform)
-
-# %% Projet 2_CNN model_HARISS_Shiny.ipynb 14
-loader = DataLoader(dataset,batch_size=len(df))
-
-# %% Projet 2_CNN model_HARISS_Shiny.ipynb 15
-keys={0:"Gaussian", 1:"Left-skewed", 2:"Lognormal"}
-
-# %% Projet 2_CNN model_HARISS_Shiny.ipynb 16
-refZ = norm.ppf(1 - ((1 - 0.95)/2))
-
-# %% Projet 2_CNN model_HARISS_Shiny.ipynb 17
-def robust(data, indices=None, refConf=0.95):
-    if indices is None:
-        indices = range(len(data))
-    data = np.sort(data[indices])
-    n = len(data)
-    median = np.nanmedian(data)
-    Tbi = median
-    TbiNew = 10000
-    c = 3.7
-    MAD = np.nanmedian(np.abs(data - median)) / 0.6745
-    smallDiff = False
-    while not smallDiff:
-        ui = (data - Tbi) / (c * MAD)
-        ui[ui < -1] = 1
-        ui[ui > 1] = 1
-        wi = (1 - ui**2)**2
-        TbiNew = np.sum(data * wi) / np.sum(wi)
-        if not np.isfinite(TbiNew) or np.abs(TbiNew - Tbi) < 0.000001:
-            break
-        Tbi = TbiNew
-    ui = (data - median) / (205.6 * MAD)
-    sbi205_6 = 205.6 * MAD * np.sqrt((n * np.sum(((1 - ui[(ui > -1) & (ui < 1)]**2)**4) * ui[(ui > -1) & (ui < 1)]**2)) /
+with tab1:
+    st.title(" :blue[HARISS] ")
+    st.markdown(" :blue[Histogram Analyzer for Reference Intervals of Small Samples] ")
+    
+    with st.popover("How does it work?", use_container_width=True):
+        st.markdown("Upload your laboratory data in Excel file format. The Excel file should be formatted as below:")
+        st.image("Excel file example.jpg")
+        st.markdown("Only the parameters of interest should be in the Excel file (remove ID numbers or other variables not meant to be analyzed).")
+        st.markdown("Your raw data appears in a table, followed by the data distribution histogram, the predicted data distribution, and the 95% reference interval with its 90% confidence interval for each laboratory parameter.")
+    
+    # %% Projet 2_CNN model_HARISS_Shiny.ipynb 4
+    file = st.file_uploader("upload excel file", type={"xlsx"})
+    if file is not None:
+        df = pd.read_excel(file)
+    else:
+        sys.exit(0)
+    
+    #    df = pd.DataFrame()
+    st.write(df)
+    
+    # %% Projet 2_CNN model_HARISS_Shiny.ipynb 6
+    transform = transforms.Compose([transforms.ToTensor(), transforms.Grayscale(num_output_channels=1), transforms.Normalize((0.5,),(0.5,)), transforms.Resize((24,32))]) #au lieu de 480,640
+    
+    # %% Projet 2_CNN model_HARISS_Shiny.ipynb 7
+    class LeNet(nn.Module):
+        def __init__(self):
+            super(LeNet, self).__init__()
+            self.conv1 = nn.Conv2d(1,16,5,padding='valid')  #  (# of channels in the input image = 1 car image N&B, # of filters = 16, kernel_size = 5 [car 5x5], pas de padding c'est a dire pas de cadre autour des donnees)
+            self.batchnorm1 = nn.BatchNorm2d(16)
+            self.act1 =torch.nn.ReLU()
+    #        self.act1 =torch.nn.LeakyReLU(negative_slope=0.1)
+            self.maxpool1 = nn.MaxPool2d(2)
+            self.conv2 = nn.Conv2d(16,32,5,padding='valid')
+            self.batchnorm2 = nn.BatchNorm2d(32)
+            self.act2 =torch.nn.ReLU()
+    #        self.act2 =torch.nn.LeakyReLU(negative_slope=0.1)
+            self.maxpool2 = nn.MaxPool2d(2)
+            self.un = nn.Linear(3*5*32,100)
+            self.act3 =torch.nn.ReLU()
+    #        self.act3 =torch.nn.LeakyReLU(negative_slope=0.1)
+            self.deux = nn.Linear(100,3)
+    #        self.dropout = nn.Dropout(0.5)
+    
+        def forward(self, x):
+            # YOUR CODE
+            h = self.maxpool2(self.batchnorm2(self.act2(self.conv2(self.maxpool1(self.batchnorm1(self.act1(self.conv1(x))))))))
+            h = h.view(-1,3*5*32)  # cf la taille de la sortie de self.fc1
+    #        h = self.dropout(h)
+            return self.deux(self.act3(self.un(h)))
+    
+        def num_flat_features(self, x):
+            size = x.size()[1:]  # all dimensions except the batch dimension
+            num_features = 1
+            for s in size:
+                num_features *= s
+            return num_features
+    
+    # %% Projet 2_CNN model_HARISS_Shiny.ipynb 8
+    model2 = torch.load('model.pth', weights_only=False)
+    
+    # %% Projet 2_CNN model_HARISS_Shiny.ipynb 10
+    hist=[]
+    for i in range(df.shape[1]):
+        fig=plt.hist(df[df.columns[i]], edgecolor = "black", color="white")
+        plt.axis('off')
+        img_buf = io.BytesIO()
+        plt.savefig(img_buf, format='jpg')
+        hist.append(Image.open(img_buf))
+        plt.show()
+        plt.close()
+    
+    
+    # %% Projet 2_CNN model_HARISS_Shiny.ipynb 11
+    fig, axes = plt.subplots(nrows=len(hist), ncols=1)
+    for i in range(len(hist)):
+        axes[i].imshow(hist[i])
+        axes[i].set_title(f"{df.columns[i]}")
+        axes[i].set_xticks([])
+        axes[i].set_yticks([])
+    fig.set_size_inches(20, 20)
+    fig.tight_layout()
+    
+    #st.pyplot(fig)
+    
+    # %% Projet 2_CNN model_HARISS_Shiny.ipynb 12
+    class MyDataset(torch.utils.data.Dataset):
+        def __init__(self, img_list, transform):
+            super(MyDataset, self).__init__()
+            self.img_list = img_list
+            self.transform = transform
+            
+        def __len__(self):
+            return len(self.img_list)
+    
+        def __getitem__(self, idx):
+            img = self.img_list[idx]
+            return self.transform(img)
+    
+    # %% Projet 2_CNN model_HARISS_Shiny.ipynb 13
+    dataset=MyDataset(hist, transform)
+    
+    # %% Projet 2_CNN model_HARISS_Shiny.ipynb 14
+    loader = DataLoader(dataset,batch_size=len(df))
+    
+    # %% Projet 2_CNN model_HARISS_Shiny.ipynb 15
+    keys={0:"Gaussian", 1:"Left-skewed", 2:"Lognormal"}
+    
+    # %% Projet 2_CNN model_HARISS_Shiny.ipynb 16
+    refZ = norm.ppf(1 - ((1 - 0.95)/2))
+    
+    # %% Projet 2_CNN model_HARISS_Shiny.ipynb 17
+    def robust(data, indices=None, refConf=0.95):
+        if indices is None:
+            indices = range(len(data))
+        data = np.sort(data[indices])
+        n = len(data)
+        median = np.nanmedian(data)
+        Tbi = median
+        TbiNew = 10000
+        c = 3.7
+        MAD = np.nanmedian(np.abs(data - median)) / 0.6745
+        smallDiff = False
+        while not smallDiff:
+            ui = (data - Tbi) / (c * MAD)
+            ui[ui < -1] = 1
+            ui[ui > 1] = 1
+            wi = (1 - ui**2)**2
+            TbiNew = np.sum(data * wi) / np.sum(wi)
+            if not np.isfinite(TbiNew) or np.abs(TbiNew - Tbi) < 0.000001:
+                break
+            Tbi = TbiNew
+        ui = (data - median) / (205.6 * MAD)
+        sbi205_6 = 205.6 * MAD * np.sqrt((n * np.sum(((1 - ui[(ui > -1) & (ui < 1)]**2)**4) * ui[(ui > -1) & (ui < 1)]**2)) /
+                                         (np.sum((1 - ui[(ui > -1) & (ui < 1)]**2) * (1 - 5 * ui[(ui > -1) & (ui < 1)]**2)) *
+                                          max(1, -1 + np.sum((1 - ui[(ui > -1) & (ui < 1)]**2) * (1 - 5 * ui[(ui > -1) & (ui < 1)]**2)))))
+    
+        ui = (data - median) / (3.7 * MAD)
+        sbi3_7 = 3.7 * MAD * np.sqrt((n * np.sum(((1 - ui[(ui > -1) & (ui < 1)]**2)**4) * ui[(ui > -1) & (ui < 1)]**2)) /
                                      (np.sum((1 - ui[(ui > -1) & (ui < 1)]**2) * (1 - 5 * ui[(ui > -1) & (ui < 1)]**2)) *
                                       max(1, -1 + np.sum((1 - ui[(ui > -1) & (ui < 1)]**2) * (1 - 5 * ui[(ui > -1) & (ui < 1)]**2)))))
+    
+        ui = (data - Tbi) / (3.7 * sbi3_7)
+        St3_7 = 3.7 * sbi3_7 * np.sqrt((np.sum(((1 - ui[(ui > -1) & (ui < 1)]**2)**4) * ui[(ui > -1) & (ui < 1)]**2)) /
+                                       (np.sum((1 - ui[(ui > -1) & (ui < 1)]**2) * (1 - 5 * ui[(ui > -1) & (ui < 1)]**2)) *
+                                        max(1, -1 + np.sum((1 - ui[(ui > -1) & (ui < 1)]**2) * (1 - 5 * ui[(ui > -1) & (ui < 1)]**2)))))
+    
+        t_statistic = t.ppf(1 - (1 - refConf) / 2, n - 1)
+        margin = t_statistic * np.sqrt(sbi205_6**2 + St3_7**2)
+        robust_lower = Tbi - margin
+        robust_upper = Tbi + margin
+        ref_interval = (robust_lower, robust_upper)
+    
+        return ref_interval
+    
+    # %% Projet 2_CNN model_HARISS_Shiny.ipynb 18
+    @jit(nopython=True)
+    def bootstrap_quantiles(data, iterations, quantile):
+        sample_size = len(data)
+        quantiles = np.zeros(iterations)
+        for i in range(iterations):
+            sample = np.random.choice(data, size=sample_size, replace=True)
+            quantiles[i] = np.quantile(sample, quantile)
+        return quantiles
+    
+    # %% Projet 2_CNN model_HARISS_Shiny.ipynb 19
+    warnings.filterwarnings('ignore') 
+    for images in loader:
+        pred = model2(images)
+        result=pred.argmax(-1)
+        lower=np.zeros(result.size(dim=0))
+        upper=np.zeros(result.size(dim=0))
+        lower90_low=np.zeros(result.size(dim=0))
+        upper90_low=np.zeros(result.size(dim=0))
+        lower90_up=np.zeros(result.size(dim=0))
+        upper90_up=np.zeros(result.size(dim=0))
+        for i in range(result.size(dim=0)):
+            if result[i].item()==0:
+                lower[i]=np.nanmean(df.values[:,i]) - refZ * np.nanstd(df.values[:,i])
+                upper[i]=np.nanmean(df.values[:,i]) + refZ * np.nanstd(df.values[:,i])
+                btlower=np.zeros(200)
+                btupper=np.zeros(200)
+                for f in range(200):
+                    sample_data = np.random.choice(df.values[:,i], replace=True, size=len(df.values[:,i]))
+                    btlower[f]=np.nanmean(sample_data) - refZ * np.nanstd(sample_data)
+                    btupper[f]=np.nanmean(sample_data) + refZ * np.nanstd(sample_data)
+                lower90_low[i]=np.quantile(btlower, 0.05)
+                lower90_up[i]=np.quantile(btlower, 0.95)
+                upper90_low[i]=np.quantile(btupper, 0.05)
+                upper90_up[i]=np.quantile(btupper, 0.95)
+            elif result[i].item()==2:
+                lower[i]=mquantiles(df.values[:,i],prob=(0.025),alphap=0, betap=0)
+                btnp=np.zeros(10000)
+                btnp = bootstrap_quantiles(df.values[:,i], 10000, 0.975)
+                upper[i]=np.nanmedian(btnp)
+                btlower=np.zeros(200)
+                btupper=np.zeros(200)
+    #            for f in tqdm(range(200)):
+                for f in range(200):
+                    sample_data = np.random.choice(df.values[:,i], replace=True, size=len(df.values[:,i]))
+                    btlower[f]=mquantiles(sample_data,prob=(0.025),alphap=0, betap=0)
+                    btnp = bootstrap_quantiles(sample_data, 10000, 0.975)
+                    btupper[f]=np.nanmedian(btnp)
+                lower90_low[i]=np.quantile(btlower, 0.05)
+                lower90_up[i]=np.quantile(btlower, 0.95)
+                upper90_low[i]=np.quantile(btupper, 0.05)
+                upper90_up[i]=np.quantile(btupper, 0.95)
+            elif result[i].item()==1:
+                lower[i]=robust(df.values[:,i])[0]
+                upper[i]=mquantiles(df.values[:,i],prob=(0.975),alphap=0, betap=0)
+                btlower=np.zeros(200)
+                btupper=np.zeros(200)
+                for f in range(200):
+                    sample_data = np.random.choice(df.values[:,i], replace=True, size=len(df.values[:,i]))
+                    btlower[f]=robust(sample_data)[0]
+                    btupper[f]=mquantiles(sample_data,prob=(0.975),alphap=0, betap=0)
+                lower90_low[i]=np.quantile(btlower, 0.05)
+                lower90_up[i]=np.quantile(btlower, 0.95)
+                upper90_low[i]=np.quantile(btupper, 0.05)
+                upper90_up[i]=np.quantile(btupper, 0.95)
+            st.image(hist[i], caption=df.columns[i], width=500)
+            st.write(f' :blue[**{df.columns[i]}**]  \n  :blue[Data distribution:]  {keys[result[i].item()]}  \n  :blue[95% Reference interval:]  [{lower[i]:.3f} - {upper[i]:.3f}]  \n  :blue[90% confidence interval:] [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]')
 
-    ui = (data - median) / (3.7 * MAD)
-    sbi3_7 = 3.7 * MAD * np.sqrt((n * np.sum(((1 - ui[(ui > -1) & (ui < 1)]**2)**4) * ui[(ui > -1) & (ui < 1)]**2)) /
-                                 (np.sum((1 - ui[(ui > -1) & (ui < 1)]**2) * (1 - 5 * ui[(ui > -1) & (ui < 1)]**2)) *
-                                  max(1, -1 + np.sum((1 - ui[(ui > -1) & (ui < 1)]**2) * (1 - 5 * ui[(ui > -1) & (ui < 1)]**2)))))
-
-    ui = (data - Tbi) / (3.7 * sbi3_7)
-    St3_7 = 3.7 * sbi3_7 * np.sqrt((np.sum(((1 - ui[(ui > -1) & (ui < 1)]**2)**4) * ui[(ui > -1) & (ui < 1)]**2)) /
-                                   (np.sum((1 - ui[(ui > -1) & (ui < 1)]**2) * (1 - 5 * ui[(ui > -1) & (ui < 1)]**2)) *
-                                    max(1, -1 + np.sum((1 - ui[(ui > -1) & (ui < 1)]**2) * (1 - 5 * ui[(ui > -1) & (ui < 1)]**2)))))
-
-    t_statistic = t.ppf(1 - (1 - refConf) / 2, n - 1)
-    margin = t_statistic * np.sqrt(sbi205_6**2 + St3_7**2)
-    robust_lower = Tbi - margin
-    robust_upper = Tbi + margin
-    ref_interval = (robust_lower, robust_upper)
-
-    return ref_interval
-
-# %% Projet 2_CNN model_HARISS_Shiny.ipynb 18
-@jit(nopython=True)
-def bootstrap_quantiles(data, iterations, quantile):
-    sample_size = len(data)
-    quantiles = np.zeros(iterations)
-    for i in range(iterations):
-        sample = np.random.choice(data, size=sample_size, replace=True)
-        quantiles[i] = np.quantile(sample, quantile)
-    return quantiles
-
-# %% Projet 2_CNN model_HARISS_Shiny.ipynb 19
-warnings.filterwarnings('ignore') 
-for images in loader:
-    pred = model2(images)
-    result=pred.argmax(-1)
-    lower=np.zeros(result.size(dim=0))
-    upper=np.zeros(result.size(dim=0))
-    lower90_low=np.zeros(result.size(dim=0))
-    upper90_low=np.zeros(result.size(dim=0))
-    lower90_up=np.zeros(result.size(dim=0))
-    upper90_up=np.zeros(result.size(dim=0))
-    for i in range(result.size(dim=0)):
-        if result[i].item()==0:
-            lower[i]=np.nanmean(df.values[:,i]) - refZ * np.nanstd(df.values[:,i])
-            upper[i]=np.nanmean(df.values[:,i]) + refZ * np.nanstd(df.values[:,i])
-            btlower=np.zeros(200)
-            btupper=np.zeros(200)
-            for f in range(200):
-                sample_data = np.random.choice(df.values[:,i], replace=True, size=len(df.values[:,i]))
-                btlower[f]=np.nanmean(sample_data) - refZ * np.nanstd(sample_data)
-                btupper[f]=np.nanmean(sample_data) + refZ * np.nanstd(sample_data)
-            lower90_low[i]=np.quantile(btlower, 0.05)
-            lower90_up[i]=np.quantile(btlower, 0.95)
-            upper90_low[i]=np.quantile(btupper, 0.05)
-            upper90_up[i]=np.quantile(btupper, 0.95)
-        elif result[i].item()==2:
-            lower[i]=mquantiles(df.values[:,i],prob=(0.025),alphap=0, betap=0)
-            btnp=np.zeros(10000)
-            btnp = bootstrap_quantiles(df.values[:,i], 10000, 0.975)
-            upper[i]=np.nanmedian(btnp)
-            btlower=np.zeros(200)
-            btupper=np.zeros(200)
-#            for f in tqdm(range(200)):
-            for f in range(200):
-                sample_data = np.random.choice(df.values[:,i], replace=True, size=len(df.values[:,i]))
-                btlower[f]=mquantiles(sample_data,prob=(0.025),alphap=0, betap=0)
-                btnp = bootstrap_quantiles(sample_data, 10000, 0.975)
-                btupper[f]=np.nanmedian(btnp)
-            lower90_low[i]=np.quantile(btlower, 0.05)
-            lower90_up[i]=np.quantile(btlower, 0.95)
-            upper90_low[i]=np.quantile(btupper, 0.05)
-            upper90_up[i]=np.quantile(btupper, 0.95)
-        elif result[i].item()==1:
-            lower[i]=robust(df.values[:,i])[0]
-            upper[i]=mquantiles(df.values[:,i],prob=(0.975),alphap=0, betap=0)
-            btlower=np.zeros(200)
-            btupper=np.zeros(200)
-            for f in range(200):
-                sample_data = np.random.choice(df.values[:,i], replace=True, size=len(df.values[:,i]))
-                btlower[f]=robust(sample_data)[0]
-                btupper[f]=mquantiles(sample_data,prob=(0.975),alphap=0, betap=0)
-            lower90_low[i]=np.quantile(btlower, 0.05)
-            lower90_up[i]=np.quantile(btlower, 0.95)
-            upper90_low[i]=np.quantile(btupper, 0.05)
-            upper90_up[i]=np.quantile(btupper, 0.95)
-        st.image(hist[i], caption=df.columns[i], width=500)
-        st.write(f' :blue[**{df.columns[i]}**]  \n  :blue[Data distribution:]  {keys[result[i].item()]}  \n  :blue[95% Reference interval:]  [{lower[i]:.3f} - {upper[i]:.3f}]  \n  :blue[90% confidence interval:] [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]')
+with tab2:
+    st.subheader("Legal notice:")
+    st.markdown("In accordance with the provisions of French Law No. 2004-575 of June 21, 2004 on confidence in the digital economy, users of this site are informed of the identity of the various parties involved in its implementation and monitoring.")
+    st.markdown("Editor:  \n  Kevin Le Boedec  \n  137 avenue du general Leclerc  \n  92340 Bourg La Reine (France)  \n  Email: drleboedec@hotmail.fr")
+    st.markdown("Host:  \n  Streamlit.io by Snowflake Inc.  \n  106 E Babcock St Bozeman MT 59715 (USA)  \n  Email: david.amoriell@snowflake.com")
+    st.subheader("Personal data and cookies:")
+    st.markdown("We do not collect any private information. We use cookies which are intended to signal your visit to our site. These cookies do not identify you personally but, in general, record information relating to the navigation of your computer on the site (pages consulted, dates and times of consultation, etc.). They will in no case be transferred to third parties. A cookie is simply a means of recording site statistics to better understand usage patterns. Your identity cannot be known. We remind you that your browser has features that allow you to oppose the registration of cookies, to be warned before accepting cookies, or to delete them. You can disable or delete cookies by changing the settings of your Internet browser.")
+    st.subheader("Disclosure:")
+    st.markdown("HARISS uses a Convolutional Neural Network to predict the shape of a population distribution from a sample distribution histogram. It has been trained to analyze data distribution histograms from samples of sizes ranging from 20 to 40 individuals. The 95% confidence interval provided is built according to the method described in [Coisnon et al](%s). The 90% confidence interval of each estimated limit is calculated based on 200 bootstrap iterations."  %  https://onlinelibrary.wiley.com/doi/abs/10.1111/vcp.13000)
