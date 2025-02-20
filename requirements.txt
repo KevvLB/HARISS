@@ -9,3 +9,4 @@ numba
 streamlit
 streamlit_jupyter
 openpyxl
+selenium
