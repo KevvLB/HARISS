@@ -32,7 +32,8 @@ with open("wakeup_log.txt", "a") as log_file:
                 button = driver.find_element(By.XPATH, "//button[text()='Yes, get this app back up!']")
                 if button.is_displayed() and button.is_enabled():
                     button.click()
-                else log_file.write(f"[{datetime.datetime.now()}] Button not displayed or enabled at: {url}\n")
+                else:
+                    log_file.write(f"[{datetime.datetime.now()}] Button not displayed or enabled at: {url}\n")
                 log_file.write(f"[{datetime.datetime.now()}] Successfully woke up app at: {url}\n")
             except TimeoutException:
                 log_file.write(f"[{datetime.datetime.now()}] Button not found for app at: {url}\n")
