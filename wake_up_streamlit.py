@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.webdriver.common.keys import Keys
 from streamlit_app import STREAMLIT_APPS
 import datetime
 
@@ -32,7 +33,7 @@ with open("wakeup_log.txt", "a") as log_file:
                 button = driver.find_element(By.XPATH, "//button[text()='Yes, get this app back up!']")
                 if button.is_displayed() and button.is_enabled():
                     button.click()
-                    button.sendKeys(Keys.ENTER)
+                    button.send_keys(Keys.ENTER)
                     log_file.write(f"[{datetime.datetime.now()}] woke up button clicked at: {url}\n")
                 else:
                     log_file.write(f"[{datetime.datetime.now()}] Button not displayed or enabled at: {url}\n")
