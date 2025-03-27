@@ -9,7 +9,7 @@ import datetime
 
 # Set up Selenium webdriver
 options = webdriver.ChromeOptions()
-options.add_argument('--headless')
+# options.add_argument('--headless')
 driver = webdriver.Chrome(options=options)
 
 # Initialize log file
