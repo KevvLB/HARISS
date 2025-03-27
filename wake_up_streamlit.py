@@ -32,8 +32,8 @@ with open("wakeup_log.txt", "a") as log_file:
                 )
                 # button = driver.find_element(By.XPATH, "//button[text()='Yes, get this app back up!']")
                 if button.is_displayed() and button.is_enabled():
-                    # button.click()
-                    button.send_keys(Keys.RETURN)
+                    button.click()
+                    # button.send_keys(Keys.RETURN)
                     log_file.write(f"[{datetime.datetime.now()}] woke up button clicked at: {url}\n")
                 else:
                     log_file.write(f"[{datetime.datetime.now()}] Button not displayed or enabled at: {url}\n")
