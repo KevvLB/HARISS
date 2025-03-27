@@ -55,4 +55,4 @@ with open("wakeup_log.txt", "a") as log_file:
             log_file.write(f"[{datetime.datetime.now()}] Error for app at {url}: {str(e)}\n")
 
 # Close the browser
-driver.quit()
+#driver.quit()
