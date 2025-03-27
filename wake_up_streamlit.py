@@ -42,6 +42,8 @@ with open("wakeup_log.txt", "a") as log_file:
                 else:
                     log_file.write(f"[{datetime.datetime.now()}] Button not displayed or enabled at: {url}\n")
                 log_file.write(f"[{datetime.datetime.now()}] Successfully woke up app at: {url}\n")
+                driver.save_screenshot(f"screenshot_{url}.png")
+                log_file.write(f"[{datetime.datetime.now()}] Screenshot saved: screenshot_{url}.png\n")
             except TimeoutException:
                 log_file.write(f"[{datetime.datetime.now()}] Button not found for app at: {url}\n")
         
