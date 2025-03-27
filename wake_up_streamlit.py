@@ -34,6 +34,11 @@ with open("wakeup_log.txt", "a") as log_file:
                 if button.is_displayed() and button.is_enabled():
                     # button.click()
                     # button.send_keys(Keys.RETURN)
+                    with open(f"page_source_{url}.html", "w", encoding="utf-8") as f:
+                        f.write(driver.page_source)
+                    log_file.write(f"[{datetime.datetime.now()}] Page source saved: page_source_{url}.html\n")
+                    driver.save_screenshot(f"screenshot_{url}.png")
+                    log_file.write(f"[{datetime.datetime.now()}] Screenshot saved: screenshot_{url}.png\n")
                     driver.execute_script("arguments[0].click();", button)
                     log_file.write(f"[{datetime.datetime.now()}] woke up button clicked at: {url}\n")
                 else:
