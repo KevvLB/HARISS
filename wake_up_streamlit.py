@@ -23,7 +23,7 @@ with open("wakeup_log.txt", "a") as log_file:
             driver.get(url)
             
             # Wait for the page to load
-            WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+            WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.TAG_NAME, "body")))
 
             # Check if the wake up button exists
             try:
