@@ -27,10 +27,10 @@ with open("wakeup_log.txt", "a") as log_file:
 
             # Check if the wake up button exists
             try:
-                WebDriverWait(driver, 30).until(
+                button = WebDriverWait(driver, 30).until(
                     EC.element_to_be_clickable((By.XPATH, "//button[text()='Yes, get this app back up!']"))
                 )
-                button = driver.find_element(By.XPATH, "//button[text()='Yes, get this app back up!']")
+                # button = driver.find_element(By.XPATH, "//button[text()='Yes, get this app back up!']")
                 if button.is_displayed() and button.is_enabled():
                     # button.click()
                     button.send_keys(Keys.RETURN)
