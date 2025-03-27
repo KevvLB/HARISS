@@ -33,9 +33,10 @@ with open("wakeup_log.txt", "a") as log_file:
                 # button = driver.find_element(By.XPATH, "//button[text()='Yes, get this app back up!']")
                 if button.is_displayed() and button.is_enabled():
                     try:
-                        # button.click()
+                        button.click()
                         # button.send_keys(Keys.RETURN)
-                        driver.execute_script("arguments[0].click();", button) #Try javascript click
+                        # driver.execute_script("arguments[0].click();", button) #Try javascript click
+                        log_file.write(f"[{datetime.datetime.now()}] Button clicked at: {url}\n")
                     except Exception as click_error:
                         log_file.write(f"[{datetime.datetime.now()}] Error clicking button at {url}: {str(click_error)}\n")
                 else:
