@@ -9,7 +9,7 @@ import datetime
 
 # Set up Selenium webdriver
 options = webdriver.ChromeOptions()
-# options.add_argument('--headless')
+options.add_argument('--headless')
 driver = webdriver.Chrome(options=options)
 
 # Initialize log file
@@ -45,6 +45,9 @@ with open("wakeup_log.txt", "a") as log_file:
                 driver.save_screenshot(f"screenshot_{url}.png")
                 log_file.write(f"[{datetime.datetime.now()}] Screenshot saved: screenshot_{url}.png\n")
                 os.startfile(f"screenshot_{url}.png")
+                with open(f"page_source_{url}.html", "w", encoding="utf-8") as f:
+                    f.write(driver.page_source)
+                log_file.write(f"[{datetime.datetime.now()}] Page source saved: page_source_{url}.html\n")
             except TimeoutException:
                 log_file.write(f"[{datetime.datetime.now()}] Button not found for app at: {url}\n")
         
