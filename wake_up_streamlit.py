@@ -9,7 +9,7 @@ import datetime
 
 # Set up Selenium webdriver
 options = webdriver.ChromeOptions()
-options.add_argument('--headless')
+#options.add_argument('--headless')
 driver = webdriver.Chrome(options=options)
 
 # Initialize log file
@@ -23,7 +23,7 @@ with open("wakeup_log.txt", "a") as log_file:
             driver.get(url)
             
             # Wait for the page to load
-            WebDriverWait(driver, 30).until(EC.visibility_of_element_located((By.TAG_NAME, "body")))
+            WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.TAG_NAME, "body")))
 
             # Check if the wake up button exists
             try:
@@ -32,17 +32,21 @@ with open("wakeup_log.txt", "a") as log_file:
                 )
                 # button = driver.find_element(By.XPATH, "//button[text()='Yes, get this app back up!']")
                 if button.is_displayed() and button.is_enabled():
-                    # button.click()
-                    # button.send_keys(Keys.RETURN)
-                    with open(f"page_source_{url}.html", "w", encoding="utf-8") as f:
-                        f.write(driver.page_source)
-                    log_file.write(f"[{datetime.datetime.now()}] Page source saved: page_source_{url}.html\n")
-                    driver.save_screenshot(f"screenshot_{url}.png")
-                    log_file.write(f"[{datetime.datetime.now()}] Screenshot saved: screenshot_{url}.png\n")
-                    driver.execute_script("arguments[0].click();", button)
-                    log_file.write(f"[{datetime.datetime.now()}] woke up button clicked at: {url}\n")
+                    try:
+                        # button.click()
+                        # button.send_keys(Keys.RETURN)
+                        driver.execute_script("arguments[0].click();", button) #Try javascript click
+                    except Exception as click_error:
+                        log_file.write(f"[{datetime.datetime.now()}] Error clicking button at {url}: {str(click_error)}\n")
                 else:
                     log_file.write(f"[{datetime.datetime.now()}] Button not displayed or enabled at: {url}\n")
+                driver.save_screenshot(f"screenshot_{url}.png")
+                log_file.write(f"[{datetime.datetime.now()}] Screenshot saved: screenshot_{url}.png\n")
+
+                with open(f"page_source_{url}.html", "w", encoding="utf-8") as f:
+                    f.write(driver.page_source)
+                log_file.write(f"[{datetime.datetime.now()}] Page source saved: page_source_{url}.html\n")
+
                 log_file.write(f"[{datetime.datetime.now()}] Successfully woke up app at: {url}\n")
             except TimeoutException:
                 log_file.write(f"[{datetime.datetime.now()}] Button not found for app at: {url}\n")
