@@ -223,8 +223,8 @@ with tab1:
                 upper[i]=np.nanmean(df.values[:,i]) + refZ * np.nanstd(df.values[:,i])
                 btlower=np.zeros(200)
                 btupper=np.zeros(200)
-                method_lower[i] = "Parametric method"
-                method_upper[i] = "Parametric method"
+                method_lower = "Parametric method"
+                method_upper = "Parametric method"
                 for f in range(200):
                     sample_data = np.random.choice(df.values[:,i], replace=True, size=len(df.values[:,i]))
                     btlower[f]=np.nanmean(sample_data) - refZ * np.nanstd(sample_data)
@@ -240,8 +240,8 @@ with tab1:
                 upper[i]=np.nanmedian(btnp)
                 btlower=np.zeros(200)
                 btupper=np.zeros(200)
-                method_lower[i] = "Nonparametric method"
-                method_upper[i] = "Nonparametric bootstrap method"
+                method_lower = "Nonparametric method"
+                method_upper = "Nonparametric bootstrap method"
     #            for f in tqdm(range(200)):
                 for f in range(200):
                     sample_data = np.random.choice(df.values[:,i], replace=True, size=len(df.values[:,i]))
@@ -257,8 +257,8 @@ with tab1:
                 upper[i]=mquantiles(df.values[:,i],prob=(0.975),alphap=0, betap=0)
                 btlower=np.zeros(200)
                 btupper=np.zeros(200)
-                method_lower[i] = "Robust method"
-                method_upper[i] = "Nonparametric method"
+                method_lower = "Robust method"
+                method_upper = "Nonparametric method"
                 for f in range(200):
                     sample_data = np.random.choice(df.values[:,i], replace=True, size=len(df.values[:,i]))
                     btlower[f]=robust(sample_data)[0]
@@ -268,4 +268,4 @@ with tab1:
                 upper90_low[i]=np.quantile(btupper, 0.05)
                 upper90_up[i]=np.quantile(btupper, 0.95)
             st.image(hist[i], caption=df.columns[i], width=500)
-            st.write(f' :blue[**{df.columns[i]}**]  \n  :blue[Data distribution:]  {keys[result[i].item()]}  \n  :blue[95% Reference interval:]  [{lower[i]:.3f} - {upper[i]:.3f}]  \n  :blue[90% Confidence intervals:] [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]  \n  :blue[Statistical method for lower reference interval limit estimate:]  {method_lower[i]}  \n  :blue[Statistical method for upper reference interval limit estimate:]  {method_upper[i]}')
+            st.write(f' :blue[**{df.columns[i]}**]  \n  :blue[Data distribution:]  {keys[result[i].item()]}  \n  :blue[95% Reference interval:]  [{lower[i]:.3f} - {upper[i]:.3f}]  \n  :blue[90% Confidence intervals:] [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]  \n  :blue[Statistical method for lower reference interval limit estimate:]  {method_lower}  \n  :blue[Statistical method for upper reference interval limit estimate:]  {method_upper}')
