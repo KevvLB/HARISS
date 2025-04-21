@@ -215,8 +215,8 @@ with tab1:
         upper90_low=np.zeros(result.size(dim=0))
         lower90_up=np.zeros(result.size(dim=0))
         upper90_up=np.zeros(result.size(dim=0))
-        method_lower=np.zeros(result.size(dim=0))
-        method_upper=np.zeros(result.size(dim=0))
+        method_lower=[]
+        method_upper=[]
         for i in range(result.size(dim=0)):
             if result[i].item()==0:
                 lower[i]=np.nanmean(df.values[:,i]) - refZ * np.nanstd(df.values[:,i])
