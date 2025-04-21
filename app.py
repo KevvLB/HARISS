@@ -276,7 +276,8 @@ with tab1:
                 lower90_up[i]=np.quantile(btlower, 0.95)
                 upper90_low[i]=np.quantile(btupper, 0.05)
                 upper90_up[i]=np.quantile(btupper, 0.95)
+            if get_outlier(df.values[:,i])==True:
+                caution_message = "Some values exceed Tukey's interquartile fences: doublecheck your data for potential outliers"
             st.image(hist[i], caption=df.columns[i], width=500)
             st.write(f' :blue[**{df.columns[i]}**]  \n  :blue[Data distribution:]  {keys[result[i].item()]}  \n  :blue[95% Reference interval:]  [{lower[i]:.3f} - {upper[i]:.3f}]  \n  :blue[90% Confidence intervals:] [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]  \n  :blue[Statistical method for lower reference interval limit estimate:]  {method_lower}  \n  :blue[Statistical method for upper reference interval limit estimate:]  {method_upper}')
-            if get_outlier(df.values[:,i])==True:
-                st.write(f" :red[Some values exceed Tukey's interquartile fences: doublecheck your data for potential outliers]")
+            st.write(f' :red[**{caution_message}**]')
