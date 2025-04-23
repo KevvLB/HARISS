@@ -46,7 +46,9 @@ with tab1:
     # Embed the Google Analytics code using an IFrame
     components.html(
         f"""
-        <iframe srcdoc="{html_code}" style="display:none;"></iframe>
+        <script>
+          {html_code}
+        </script>
         """,
         height=0,
     )
