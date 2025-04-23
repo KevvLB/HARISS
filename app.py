@@ -39,9 +39,8 @@ with tab2:
     st.markdown("The creator of HARISS is not to be held responsible for any clinical decisions that may come as a result of the model estimation. The reliability of a reference interval does not only depend on the statistical method used, but also on the quality of the data used to construct it.")
 
 with tab1:
-
-     with open("google-analytics.html", "r") as f:
-        html_code = f.read()
+    with open("google-analytics.html", "r") as f:
+        html_code = f.read()     
     st.markdown(html_code, unsafe_allow_html=True)
 
     st.title(" :blue[HARISS] ")
