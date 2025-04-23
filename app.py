@@ -25,6 +25,21 @@ from streamlit_jupyter import StreamlitPatcher, tqdm
 import sys
 import streamlit.components.v1 as components
 
+st.set_page_config(layout="wide") # Ensure this is at the very top
+
+google_analytics_code = """
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-00VKKMT6HT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-00VKKMT6HT');
+</script>
+"""
+
+components.html(google_analytics_code, height=0)
+
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 3
 tab1, tab2 = st.tabs(["App","Legal notice and disclosure"])
 
@@ -39,17 +54,6 @@ with tab2:
     st.markdown("The creator of HARISS is not to be held responsible for any clinical decisions that may come as a result of the model estimation. The reliability of a reference interval does not only depend on the statistical method used, but also on the quality of the data used to construct it.")
 
 with tab1:
-    # Read the Google Analytics HTML code
-    with open("google-analytics.html", "r") as f:
-        html_code = f.read()
-
-    # Embed the Google Analytics code using an IFrame
-    components.html(
-        f"""
-        <iframe srcdoc="{html_code}" style="display:none;"></iframe>
-        """,
-        height=0,
-    )
     
     st.title(" :blue[HARISS] ")
     st.markdown(" :blue[Histogram Analyzer for Reference Intervals of Small Samples] ")
