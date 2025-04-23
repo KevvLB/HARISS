@@ -43,6 +43,8 @@ with tab1:
     with open("google-analytics.html", "r") as f:
         html_code = f.read()
 
+    time.sleep(1)  # Ajouter un léger délai
+
     # Embed the Google Analytics code using an IFrame
     components.html(
         f"""
