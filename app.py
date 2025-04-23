@@ -39,10 +39,18 @@ with tab2:
     st.markdown("The creator of HARISS is not to be held responsible for any clinical decisions that may come as a result of the model estimation. The reliability of a reference interval does not only depend on the statistical method used, but also on the quality of the data used to construct it.")
 
 with tab1:
+    # Read the Google Analytics HTML code
     with open("google-analytics.html", "r") as f:
-        html_code = f.read()     
-    st.markdown(html_code, unsafe_allow_html=True)
+        html_code = f.read()
 
+    # Embed the Google Analytics code using an IFrame
+    components.html(
+        f"""
+        <iframe srcdoc="{html_code}" style="display:none;"></iframe>
+        """,
+        height=0,
+    )
+    
     st.title(" :blue[HARISS] ")
     st.markdown(" :blue[Histogram Analyzer for Reference Intervals of Small Samples] ")
     
