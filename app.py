@@ -25,7 +25,7 @@ from streamlit_jupyter import StreamlitPatcher, tqdm
 import sys
 import streamlit.components.v1 as components
 
-st.set_page_config(layout="wide") # Ensure this is at the very top
+st.set_page_config(layout="wide")
 
 google_analytics_code = """
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-00VKKMT6HT"></script>
@@ -38,7 +38,12 @@ google_analytics_code = """
 </script>
 """
 
-components.html(google_analytics_code, height=0)
+components.html(
+    f"""
+    <iframe srcdoc="{google_analytics_code}" style="display:none;"></iframe>
+    """,
+    height=0,
+)
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 3
 tab1, tab2 = st.tabs(["App","Legal notice and disclosure"])
