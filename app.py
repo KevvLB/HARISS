@@ -23,6 +23,12 @@ from numba import jit
 import streamlit as st
 from streamlit_jupyter import StreamlitPatcher, tqdm
 import sys
+import streamlit.components.v1 as components
+
+# Insérer le tag Google Analytics
+with open("google_analytics.html", "r") as f:
+    html_code = f.read()
+components.html(html_code, height=0)
 
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 3
