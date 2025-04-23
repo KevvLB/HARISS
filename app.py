@@ -26,7 +26,7 @@ import sys
 import streamlit.components.v1 as components
 
 # Insérer le tag Google Analytics
-with open("google_analytics.html", "r") as f:
+with open("google-analytics.html", "r") as f:
     html_code = f.read()
 components.html(html_code, height=0)
 
