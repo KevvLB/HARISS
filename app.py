@@ -58,6 +58,8 @@ with tab1:
     file = st.file_uploader("upload excel file", type={"xlsx"})
     if file is not None:
         df = pd.read_excel(file)
+        # Envoi d'un événement Google Analytics lors du chargement du fichier
+        st_gtag("event", "file_uploaded",)
     else:
         sys.exit(0)
     
