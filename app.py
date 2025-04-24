@@ -24,24 +24,9 @@ import streamlit as st
 from streamlit_jupyter import StreamlitPatcher, tqdm
 import sys
 import streamlit.components.v1 as components
+from streamlit_gtag import st_gtag
 
-google_analytics_code = """
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-00VKKMT6HT"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-00VKKMT6HT');
-</script>
-"""
-
-components.html(
-    f"""
-    <iframe srcdoc="{google_analytics_code}" style="display:none;"></iframe>
-    """,
-    height=0,
-)
+st_gtag("G-00VKKMT6HT") # Initialisation de Google Analytics
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 3
 tab1, tab2 = st.tabs(["App","Legal notice and disclosure"])
