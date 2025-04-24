@@ -24,7 +24,7 @@ import streamlit as st
 from streamlit_jupyter import StreamlitPatcher, tqdm
 import sys
 import streamlit.components.v1 as components
-from streamlit_gtag import st_gtag
+from local_components import st_gtag
 
 st_gtag("G-00VKKMT6HT") # Initialisation de Google Analytics
 
