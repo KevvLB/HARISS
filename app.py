@@ -25,8 +25,6 @@ from streamlit_jupyter import StreamlitPatcher, tqdm
 import sys
 import streamlit.components.v1 as components
 
-st.set_page_config(layout="wide")
-
 google_analytics_code = """
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-00VKKMT6HT"></script>
 <script>
