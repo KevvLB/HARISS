@@ -10,3 +10,4 @@ streamlit
 streamlit_jupyter
 openpyxl
 selenium
+streamlit-gtag
