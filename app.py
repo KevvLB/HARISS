@@ -26,7 +26,7 @@ import sys
 import streamlit.components.v1 as components
 from local_components import st_gtag
 
-st_gtag("G-00VKKMT6HT") # Initialisation de Google Analytics
+st_gtag(id="G-00VKKMT6HT")  # Initialisation de Google Analytics
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 3
 tab1, tab2 = st.tabs(["App","Legal notice and disclosure"])
