@@ -59,7 +59,7 @@ with tab1:
     if file is not None:
         df = pd.read_excel(file)
         # Envoi d'un événement Google Analytics lors du chargement du fichier
-        st_gtag("event", "file_uploaded",)
+        st_gtag(type="event", event_name="file_uploaded",)
     else:
         sys.exit(0)
     
