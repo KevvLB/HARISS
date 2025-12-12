@@ -120,6 +120,8 @@ with tab1:
     
     # %% Projet 2_CNN model_HARISS_Shiny.ipynb 11
     fig, axes = plt.subplots(nrows=len(hist), ncols=1)
+    if len(hist) == 1:
+        axes = [axes]
     for i in range(len(hist)):
         axes[i].imshow(hist[i])
         axes[i].set_title(f"{df.columns[i]}")
@@ -286,3 +288,4 @@ with tab1:
             st.write(f' :blue[**{df.columns[i]}**]  \n  :blue[Data distribution:]  {keys[result[i].item()]}  \n  :blue[95% Reference interval:]  [{lower[i]:.3f} - {upper[i]:.3f}]  \n  :blue[90% Confidence intervals:] [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]  \n  :blue[Statistical method for lower reference interval limit estimate:]  {method_lower}  \n  :blue[Statistical method for upper reference interval limit estimate:]  {method_upper}')
             if get_outlier(df[df.columns[i]])==True:
                 st.write(f" :red[Some values exceed Tukey's interquartile fences: doublecheck your data for potential outliers]")
+
