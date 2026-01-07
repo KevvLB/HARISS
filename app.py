@@ -5,7 +5,7 @@ __all__ = []
 
 # %% Projet 2_CNN model_HARISS_Shiny.ipynb 1
 import numpy as np
-from scipy.stats import norm, skewnorm, bootstrap, t
+from scipy.stats import norm, skewnorm, bootstrap, t, beta
 import matplotlib.pyplot as plt
 from random import sample
 import torch
@@ -52,7 +52,7 @@ with tab1:
         st.markdown("Only the parameters of interest should be in the Excel file (remove ID numbers or other variables not meant to be analyzed).")
         st.markdown("Your raw data will appear in a table, followed by the data distribution histogram, the predicted data distribution, and the 95% reference interval (RI) with the 90% confidence interval of each RI limit for each laboratory parameter.")
         st.markdown("To analyze another set of data, just upload another Excel file and the previous results will be overwritten.")
-        st.markdown("HARISS uses a Convolutional Neural Network to predict the shape of a population distribution from a sample distribution histogram. It has been trained to analyze data distribution histograms from samples of sizes ranging from 20 to 40 individuals. The 95% RI provided is built according to the method described in [Coisnon et al](https://onlinelibrary.wiley.com/doi/abs/10.1111/vcp.13000). The 90% confidence interval of each estimated RI limit is calculated based on 200 bootstrap iterations.")
+        st.markdown("[HARISS](https://doi.org/10.1111/vcp.70033) uses a Convolutional Neural Network to predict the shape of a population distribution from a sample distribution histogram. It has been trained to analyze data distribution histograms from samples of sizes ranging from 20 to 40 individuals. The 95% RI provided is built according to the method described in [Coisnon et al](https://onlinelibrary.wiley.com/doi/abs/10.1111/vcp.13000). The 90% confidence interval of each estimated RI limit is calculated based on 200 bootstrap iterations.")
 
     # %% Projet 2_CNN model_HARISS_Shiny.ipynb 4
     file = st.file_uploader("upload excel file", type={"xlsx"})
@@ -211,6 +211,29 @@ with tab1:
             sample = np.random.choice(data, size=sample_size, replace=True)
             quantiles[i] = np.quantile(sample, quantile)
         return quantiles
+
+    def harrell_davis(data, quantile):
+        n = len(data)
+        sorted_data = np.sort(data)
+        a, b = (n + 1) * quantile, (n + 1) * (1 - quantile)
+        i = np.arange(1, n + 1)
+        weights = beta.cdf(i / n, a, b) - beta.cdf((i - 1) / n, a, b)
+        return np.sum(weights * sorted_data)
+
+    def bca_correction(theta_hat, theta_boot, data, func, q_target):
+        # Biais z0
+        z0 = norm.ppf(np.clip(np.sum(theta_boot < theta_hat) / len(theta_boot), 1e-6, 1-1e-6))
+        # Accélération a (Jackknife)
+        n = len(data)
+        jack = np.array([func(np.delete(data, j)) for j in range(n)])
+        m_j = np.mean(jack)
+        a = np.sum((m_j - jack)**3) / (6 * (np.sum((m_j - jack)**2))**1.5) if np.sum((m_j - jack)**2) != 0 else 0
+        # Correction des quantiles (alpha 0.05 et 0.95 pour IC 90%)
+        def get_q(z):
+            num = z0 + z
+            den = 1 - a * (z0 + z)
+            return norm.cdf(z0 + num/(den if den != 0 else 1e-6))
+        return np.quantile(theta_boot, np.clip(get_q(norm.ppf(0.05)), 0, 1)), np.quantile(theta_boot, np.clip(get_q(norm.ppf(0.95)), 0, 1))
         
     def get_outlier(x,tukeymultiplier=2):
         Q1=x.quantile(.25)
@@ -240,16 +263,16 @@ with tab1:
                 upper[i]=np.nanmean(df.values[:,i]) + refZ * np.nanstd(df.values[:,i])
                 btlower=np.zeros(200)
                 btupper=np.zeros(200)
+                f_l_boot = lambda d: np.mean(d) - refZ * np.std(d)
+                f_u_boot = lambda d: np.mean(d) + refZ * np.std(d)
                 method_lower = "Parametric method"
                 method_upper = "Parametric method"
                 for f in range(200):
                     sample_data = np.random.choice(df.values[:,i], replace=True, size=len(df.values[:,i]))
-                    btlower[f]=np.nanmean(sample_data) - refZ * np.nanstd(sample_data)
-                    btupper[f]=np.nanmean(sample_data) + refZ * np.nanstd(sample_data)
-                lower90_low[i]=np.quantile(btlower, 0.05)
-                lower90_up[i]=np.quantile(btlower, 0.95)
-                upper90_low[i]=np.quantile(btupper, 0.05)
-                upper90_up[i]=np.quantile(btupper, 0.95)
+                    btlower[f]=f_l_boot(sample_data)
+                    btupper[f]=f_u_boot(sample_data)
+                lower90_low[i], lower90_up[i]=bca_correction(lower[i], btlower, df.values[:,i], f_l_boot)
+                upper90_low[i], upper90_up[i]=bca_correction(upper[i], btupper, df.values[:,i], f_u_boot)
             elif result[i].item()==2:
                 lower[i]=mquantiles(df.values[:,i],prob=(0.025),alphap=0, betap=0)
                 btnp=np.zeros(10000)
@@ -257,35 +280,35 @@ with tab1:
                 upper[i]=np.nanmedian(btnp)
                 btlower=np.zeros(200)
                 btupper=np.zeros(200)
+                f_l_boot = lambda d: harrell_davis(d, 0.025)
+                f_u_boot = lambda d: harrell_davis(d, 0.975)
                 method_lower = "Nonparametric method"
                 method_upper = "Nonparametric bootstrap method"
     #            for f in tqdm(range(200)):
                 for f in range(200):
                     sample_data = np.random.choice(df.values[:,i], replace=True, size=len(df.values[:,i]))
-                    btlower[f]=mquantiles(sample_data,prob=(0.025),alphap=0, betap=0)
-                    btnp = bootstrap_quantiles(sample_data, 10000, 0.975)
-                    btupper[f]=np.nanmedian(btnp)
-                lower90_low[i]=np.quantile(btlower, 0.05)
-                lower90_up[i]=np.quantile(btlower, 0.95)
-                upper90_low[i]=np.quantile(btupper, 0.05)
-                upper90_up[i]=np.quantile(btupper, 0.95)
+                    btlower[f]=f_l_boot(sample_data)
+                    btupper[f]=f_u_boot(sample_data)
+                lower90_low[i], lower90_up[i]=bca_correction(lower[i], btlower, df.values[:,i], f_l_boot)
+                upper90_low[i], upper90_up[i]=bca_correction(upper[i], btupper, df.values[:,i], f_u_boot)
             elif result[i].item()==1:
                 lower[i]=robust(df.values[:,i])[0]
                 upper[i]=mquantiles(df.values[:,i],prob=(0.975),alphap=0, betap=0)
                 btlower=np.zeros(200)
                 btupper=np.zeros(200)
+                f_l_boot = lambda d: robust(d)[0]
+                f_u_boot = lambda d: harrell_davis(d, 0.975)
                 method_lower = "Robust method"
                 method_upper = "Nonparametric method"
                 for f in range(200):
                     sample_data = np.random.choice(df.values[:,i], replace=True, size=len(df.values[:,i]))
-                    btlower[f]=robust(sample_data)[0]
-                    btupper[f]=mquantiles(sample_data,prob=(0.975),alphap=0, betap=0)
-                lower90_low[i]=np.quantile(btlower, 0.05)
-                lower90_up[i]=np.quantile(btlower, 0.95)
-                upper90_low[i]=np.quantile(btupper, 0.05)
-                upper90_up[i]=np.quantile(btupper, 0.95)
+                    btlower[f]=f_l_boot(sample_data)
+                    btupper[f]=f_u_boot(sample_data)
+                lower90_low[i], lower90_up[i]=bca_correction(lower[i], btlower, df.values[:,i], f_l_boot)
+                upper90_low[i], upper90_up[i]=bca_correction(upper[i], btupper, df.values[:,i], f_u_boot)
             st.image(hist[i], caption=df.columns[i], width=500)
             st.write(f' :blue[**{df.columns[i]}**]  \n  :blue[Data distribution:]  {keys[result[i].item()]}  \n  :blue[95% Reference interval:]  [{lower[i]:.3f} - {upper[i]:.3f}]  \n  :blue[90% Confidence intervals:] [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]  \n  :blue[Statistical method for lower reference interval limit estimate:]  {method_lower}  \n  :blue[Statistical method for upper reference interval limit estimate:]  {method_upper}')
             if get_outlier(df[df.columns[i]])==True:
                 st.write(f" :red[Some values exceed Tukey's interquartile fences: doublecheck your data for potential outliers]")
+
 
