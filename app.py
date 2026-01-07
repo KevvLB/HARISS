@@ -225,29 +225,44 @@ with tab1:
         return np.sum(weights * sorted_data)
 
     def bca_correction(theta_hat, theta_boot, data, func):
-        # 1. Biais z0
-        # On clip la probabilité pour éviter norm.ppf(0) ou norm.ppf(1) qui donnent l'infini
-        prop_less = np.sum(theta_boot < theta_hat) / len(theta_boot)
-        z0 = norm.ppf(np.clip(prop_less, 1e-6, 1-1e-6))
+        # 1. Calcul du biais z0
+        # On évite 0 ou 1 pour le ratio pour que norm.ppf ne renvoie pas l'infini
+        n_boot = len(theta_boot)
+        prop = np.sum(theta_boot < theta_hat) / n_boot
+        prop = np.clip(prop, 1/n_boot, 1 - 1/n_boot)
+        z0 = norm.ppf(prop)
         # 2. Accélération a (Jackknife)
         n = len(data)
-        jack = np.array([func(np.delete(data, j)) for j in range(n)])
+        # On s'assure que data est bien un array numpy pour np.delete
+        data_arr = np.asarray(data)
+        jack = np.array([func(np.delete(data_arr, j)) for j in range(n)])
         m_j = np.mean(jack)
-        num_a = np.sum((m_j - jack)**3)
-        den_a = (6 * (np.sum((m_j - jack)**2))**1.5)
-        a = num_a / den_a if den_a != 0 else 0
-        # 3. Correction des quantiles
-        def get_q(z_alpha):
+        diff = m_j - jack
+        sum_sq = np.sum(diff**2)
+        sum_cub = np.sum(diff**3)
+        # Calcul de a avec sécurité sur la division
+        if sum_sq > 0:
+            a = sum_cub / (6 * (sum_sq**1.5))
+        else:
+            a = 0
+        # 3. Fonction de transformation des quantiles
+        def get_corrected_q(alpha):
+            z_alpha = norm.ppf(alpha)
             num = z0 + z_alpha
-            den = 1 - a * (z0 + z_alpha)
-            # Sécurité pour éviter division par zéro
-            if den == 0: den = 1e-6
-            # C'est ici qu'on doit clipper AVANT le norm.cdf
-            val = z0 + num / den
-            return np.clip(norm.cdf(val), 1e-6, 1-1e-6)
-        # Calcul des deux bornes (5% et 95%)
-        q_low = get_q(norm.ppf(0.05))
-        q_up = get_q(norm.ppf(0.95))
+            den = 1 - a * num
+            # Sécurité critique : si le dénominateur est nul ou proche de zéro
+            if np.abs(den) < 1e-10:
+                return alpha # On replie sur le quantile standard si le calcul échoue    
+            new_z = z0 + (num / den)
+            new_q = norm.cdf(new_z)
+            # Sécurité finale : forcer strictement entre 0 et 1 (excluant les bords exacts)
+            return np.clip(new_q, 0.0001, 0.9999)
+        # Calcul des indices corrigés
+        q_low = get_corrected_q(0.05)
+        q_up = get_corrected_q(0.95)
+        # Vérification ultime avant l'appel à numpy
+        if not (0 <= q_low <= 1) or not (0 <= q_up <= 1) or np.isnan(q_low) or np.isnan(q_up):
+            return np.quantile(theta_boot, 0.05), np.quantile(theta_boot, 0.95)
         return np.quantile(theta_boot, q_low), np.quantile(theta_boot, q_up)
         
     def get_outlier(x,tukeymultiplier=2):
@@ -325,6 +340,7 @@ with tab1:
             st.write(f' :blue[**{df.columns[i]}**]  \n  :blue[Data distribution:]  {keys[result[i].item()]}  \n  :blue[95% Reference interval:]  [{lower[i]:.3f} - {upper[i]:.3f}]  \n  :blue[90% Confidence intervals:] [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]  \n  :blue[Statistical method for lower reference interval limit estimate:]  {method_lower}  \n  :blue[Statistical method for upper reference interval limit estimate:]  {method_upper}')
             if get_outlier(df[df.columns[i]])==True:
                 st.write(f" :red[Some values exceed Tukey's interquartile fences: doublecheck your data for potential outliers]")
+
 
 
 
