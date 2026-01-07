@@ -174,8 +174,12 @@ with tab1:
             ui = (data - Tbi) / (c * MAD)
             ui[ui < -1] = 1
             ui[ui > 1] = 1
-            wi = (1 - ui**2)**2
-            TbiNew = np.sum(data * wi) / np.sum(wi)
+            wi = np.zeros_like(ui)
+            mask = (ui >= -1) & (ui <= 1)
+            wi[mask] = (1 - ui[mask]**2)**2
+            Tbi_sum_wi = np.sum(wi)
+            if Tbi_sum_wi == 0: break
+            TbiNew = np.sum(data * wi)/Tbi_sum_wi
             if not np.isfinite(TbiNew) or np.abs(TbiNew - Tbi) < 0.000001:
                 break
             Tbi = TbiNew
@@ -220,7 +224,7 @@ with tab1:
         weights = beta.cdf(i / n, a, b) - beta.cdf((i - 1) / n, a, b)
         return np.sum(weights * sorted_data)
 
-    def bca_correction(theta_hat, theta_boot, data, func, q_target):
+    def bca_correction(theta_hat, theta_boot, data, func):
         # Biais z0
         z0 = norm.ppf(np.clip(np.sum(theta_boot < theta_hat) / len(theta_boot), 1e-6, 1-1e-6))
         # Accélération a (Jackknife)
@@ -310,5 +314,6 @@ with tab1:
             st.write(f' :blue[**{df.columns[i]}**]  \n  :blue[Data distribution:]  {keys[result[i].item()]}  \n  :blue[95% Reference interval:]  [{lower[i]:.3f} - {upper[i]:.3f}]  \n  :blue[90% Confidence intervals:] [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]  \n  :blue[Statistical method for lower reference interval limit estimate:]  {method_lower}  \n  :blue[Statistical method for upper reference interval limit estimate:]  {method_upper}')
             if get_outlier(df[df.columns[i]])==True:
                 st.write(f" :red[Some values exceed Tukey's interquartile fences: doublecheck your data for potential outliers]")
+
 
 
