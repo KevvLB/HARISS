@@ -319,8 +319,10 @@ with tab1:
                     sample_data = np.random.choice(df.values[:,i], replace=True, size=len(df.values[:,i]))
                     btlower[f]=f_l_boot(sample_data)
                     btupper[f]=f_u_boot(sample_data)
-                lower90_low[i], lower90_up[i]=bca_correction(lower[i], btlower, df.values[:,i], f_l_boot)
-                upper90_low[i], upper90_up[i]=bca_correction(upper[i], btupper, df.values[:,i], f_u_boot)
+                lower90_low[i] = np.percentile(btlower, 5)
+                lower90_up[i] = np.percentile(btlower, 95)
+                upper90_low[i] = np.percentile(btupper, 5)
+                upper90_up[i] = np.percentile(btupper, 95)
             elif result[i].item()==1:
                 lower[i]=robust(df.values[:,i])[0]
                 upper[i]=mquantiles(df.values[:,i],prob=(0.975),alphap=0, betap=0)
@@ -340,6 +342,7 @@ with tab1:
             st.write(f' :blue[**{df.columns[i]}**]  \n  :blue[Data distribution:]  {keys[result[i].item()]}  \n  :blue[95% Reference interval:]  [{lower[i]:.3f} - {upper[i]:.3f}]  \n  :blue[90% Confidence intervals:] [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]  \n  :blue[Statistical method for lower reference interval limit estimate:]  {method_lower}  \n  :blue[Statistical method for upper reference interval limit estimate:]  {method_upper}')
             if get_outlier(df[df.columns[i]])==True:
                 st.write(f" :red[Some values exceed Tukey's interquartile fences: doublecheck your data for potential outliers]")
+
 
 
 
