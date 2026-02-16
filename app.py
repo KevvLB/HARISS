@@ -311,8 +311,10 @@ with tab1:
                 upper[i]=np.nanmedian(btnp)
                 btlower=np.zeros(200)
                 btupper=np.zeros(200)
-                f_l_boot = lambda d: harrell_davis(d, 0.025)
-                f_u_boot = lambda d: harrell_davis(d, 0.975)
+                f_l_boot = lambda d: mquantiles(d, prob=(0.025), alphap=0, betap=0)[0]
+                f_u_boot = lambda d: mquantiles(d, prob=(0.975), alphap=0, betap=0)[0]
+  #              f_l_boot = lambda d: harrell_davis(d, 0.025)
+  #              f_u_boot = lambda d: harrell_davis(d, 0.975)
                 method_lower = "Nonparametric method"
                 method_upper = "Nonparametric bootstrap method"
     #            for f in tqdm(range(200)):
@@ -343,6 +345,7 @@ with tab1:
             st.write(f' :blue[**{df.columns[i]}**]  \n  :blue[Data distribution:]  {keys[result[i].item()]}  \n  :blue[95% Reference interval:]  [{lower[i]:.3f} - {upper[i]:.3f}]  \n  :blue[90% Confidence intervals:] [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]  \n  :blue[Statistical method for lower reference interval limit estimate:]  {method_lower}  \n  :blue[Statistical method for upper reference interval limit estimate:]  {method_upper}')
             if get_outlier(df[df.columns[i]])==True:
                 st.write(f" :red[Some values exceed Tukey's interquartile fences: doublecheck your data for potential outliers]")
+
 
 
 
