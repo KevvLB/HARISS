@@ -109,7 +109,7 @@ with tab1:
     # %% Projet 2_CNN model_HARISS_Shiny.ipynb 10
     hist=[]
     for i in range(df.shape[1]):
-        fig=plt.hist(df[df.columns[i]], edgecolor = "black", color="white")
+        fig=plt.hist(df[df.columns[i]].dropna(), edgecolor = "black", color="white")
         plt.axis('off')
         img_buf = io.BytesIO()
         plt.savefig(img_buf, format='jpg')
@@ -288,9 +288,10 @@ with tab1:
         method_lower=[]
         method_upper=[]
         for i in range(result.size(dim=0)):
+            current_data = df.iloc[:,i].dropna().values
             if result[i].item()==0:
-                lower[i]=np.nanmean(df.values[:,i]) - refZ * np.nanstd(df.values[:,i])
-                upper[i]=np.nanmean(df.values[:,i]) + refZ * np.nanstd(df.values[:,i])
+                lower[i]=np.nanmean(current_data) - refZ * np.nanstd(current_data)
+                upper[i]=np.nanmean(current_data) + refZ * np.nanstd(current_data)
                 btlower=np.zeros(200)
                 btupper=np.zeros(200)
                 f_l_boot = lambda d: np.mean(d) - refZ * np.std(d)
@@ -298,16 +299,16 @@ with tab1:
                 method_lower = "Parametric method"
                 method_upper = "Parametric method"
                 for f in range(200):
-                    sample_data = np.random.choice(df.values[:,i], replace=True, size=len(df.values[:,i]))
+                    sample_data = np.random.choice(current_data, replace=True, size=len(current_data))
                     btlower[f]=f_l_boot(sample_data)
                     btupper[f]=f_u_boot(sample_data)
-                lower90_low[i], lower90_up[i]=bca_correction(lower[i], btlower, df.values[:,i], f_l_boot)
-                upper90_low[i], upper90_up[i]=bca_correction(upper[i], btupper, df.values[:,i], f_u_boot)
+                lower90_low[i], lower90_up[i]=bca_correction(lower[i], btlower, current_data, f_l_boot)
+                upper90_low[i], upper90_up[i]=bca_correction(upper[i], btupper, current_data, f_u_boot)
             elif result[i].item()==2:
-                lower[i]=mquantiles(df.values[:,i],prob=(0.025),alphap=0, betap=0)
+                lower[i]=mquantiles(current_data,prob=(0.025),alphap=0, betap=0)
  #               lower[i] = harrell_davis(df.values[:, i], 0.025)
                 btnp=np.zeros(10000)
-                btnp = bootstrap_quantiles(df.values[:,i], 10000, 0.975)
+                btnp = bootstrap_quantiles(current_data, 10000, 0.975)
                 upper[i]=np.nanmedian(btnp)
                 btlower=np.zeros(200)
                 btupper=np.zeros(200)
@@ -319,7 +320,7 @@ with tab1:
                 method_upper = "Nonparametric bootstrap method"
     #            for f in tqdm(range(200)):
                 for f in range(200):
-                    sample_data = np.random.choice(df.values[:,i], replace=True, size=len(df.values[:,i]))
+                    sample_data = np.random.choice(current_data, replace=True, size=len(current_data))
                     btlower[f]=f_l_boot(sample_data)
                     btupper[f]=f_u_boot(sample_data)
                 lower90_low[i] = np.percentile(btlower, 5)
@@ -327,8 +328,8 @@ with tab1:
                 upper90_low[i] = np.percentile(btupper, 5)
                 upper90_up[i] = np.percentile(btupper, 95)
             elif result[i].item()==1:
-                lower[i]=robust(df.values[:,i])[0]
-                upper[i]=mquantiles(df.values[:,i],prob=(0.975),alphap=0, betap=0)
+                lower[i]=robust(current_data)[0]
+                upper[i]=mquantiles(current_data,prob=(0.975),alphap=0, betap=0)
                 btlower=np.zeros(200)
                 btupper=np.zeros(200)
                 f_l_boot = lambda d: robust(d)[0]
@@ -336,15 +337,16 @@ with tab1:
                 method_lower = "Robust method"
                 method_upper = "Nonparametric method"
                 for f in range(200):
-                    sample_data = np.random.choice(df.values[:,i], replace=True, size=len(df.values[:,i]))
+                    sample_data = np.random.choice(current_data, replace=True, size=len(current_data))
                     btlower[f]=f_l_boot(sample_data)
                     btupper[f]=f_u_boot(sample_data)
-                lower90_low[i], lower90_up[i]=bca_correction(lower[i], btlower, df.values[:,i], f_l_boot)
-                upper90_low[i], upper90_up[i]=bca_correction(upper[i], btupper, df.values[:,i], f_u_boot)
+                lower90_low[i], lower90_up[i]=bca_correction(lower[i], btlower, current_data, f_l_boot)
+                upper90_low[i], upper90_up[i]=bca_correction(upper[i], btupper, current_data, f_u_boot)
             st.image(hist[i], caption=df.columns[i], width=500)
             st.write(f' :blue[**{df.columns[i]}**]  \n  :blue[Data distribution:]  {keys[result[i].item()]}  \n  :blue[95% Reference interval:]  [{lower[i]:.3f} - {upper[i]:.3f}]  \n  :blue[90% Confidence intervals:] [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]  \n  :blue[Statistical method for lower reference interval limit estimate:]  {method_lower}  \n  :blue[Statistical method for upper reference interval limit estimate:]  {method_upper}')
-            if get_outlier(df[df.columns[i]])==True:
+            if get_outlier(pd.Series(current_data))==True:
                 st.write(f" :red[Some values exceed Tukey's interquartile fences: doublecheck your data for potential outliers]")
+
 
 
 
