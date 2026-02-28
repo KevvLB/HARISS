@@ -305,7 +305,7 @@ with tab1:
                 lower90_low[i], lower90_up[i]=bca_correction(lower[i], btlower, current_data, f_l_boot)
                 upper90_low[i], upper90_up[i]=bca_correction(upper[i], btupper, current_data, f_u_boot)
             elif result[i].item()==2:
-                lower[i]=mquantiles(current_data,prob=(0.025),alphap=0, betap=0)
+                lower[i]=mquantiles(current_data,prob=(0.025),alphap=0, betap=0)[0]
  #               lower[i] = harrell_davis(df.values[:, i], 0.025)
                 btnp=np.zeros(10000)
                 btnp = bootstrap_quantiles(current_data, 10000, 0.975)
@@ -329,7 +329,7 @@ with tab1:
                 upper90_up[i] = np.percentile(btupper, 95)
             elif result[i].item()==1:
                 lower[i]=robust(current_data)[0]
-                upper[i]=mquantiles(current_data,prob=(0.975),alphap=0, betap=0)
+                upper[i]=mquantiles(current_data,prob=(0.975),alphap=0, betap=0)[0]
                 btlower=np.zeros(200)
                 btupper=np.zeros(200)
                 f_l_boot = lambda d: robust(d)[0]
@@ -346,6 +346,7 @@ with tab1:
             st.write(f' :blue[**{df.columns[i]}**]  \n  :blue[Data distribution:]  {keys[result[i].item()]}  \n  :blue[95% Reference interval:]  [{lower[i]:.3f} - {upper[i]:.3f}]  \n  :blue[90% Confidence intervals:] [{lower90_low[i]:.3f}-{lower90_up[i]:.3f} ; {upper90_low[i]:.3f}-{upper90_up[i]:.3f}]  \n  :blue[Statistical method for lower reference interval limit estimate:]  {method_lower}  \n  :blue[Statistical method for upper reference interval limit estimate:]  {method_upper}')
             if get_outlier(pd.Series(current_data))==True:
                 st.write(f" :red[Some values exceed Tukey's interquartile fences: doublecheck your data for potential outliers]")
+
 
 
 
